@@ -1,6 +1,8 @@
-/*Number Guessing Game 
-today added a do-while loop so the player can keep guessing
-until they find the secret number.*/
+/*
+ * Number Guessing Game 
+ * in this commit given directional hints 
+ * to player after each wrong guess.
+ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -12,7 +14,7 @@ until they find the secret number.*/
 int main(void)
 {
     int secret_number;
-    int guess;  /* stores what the player types each round */
+    int guess;
 
     /* Seed and generate secret number */
     srand((unsigned int)time(NULL));
@@ -28,19 +30,25 @@ int main(void)
     printf("Can you guess it?\n");
     printf("\n");
 
-    /* do-while loop: always runs at least once.
-       Keeps looping until the player guesses correctly. */
+    //Guessing loop with directional hints
     do {
         printf("Enter your guess: ");
-        scanf("%d", &guess);  /* read the player's guess */
+        scanf("%d", &guess);
 
-        //Hints coming in next commit 
+        /* Compare the guess to the secret number and give a hint */
+        if (guess < secret_number) {
+            //Player guessed too small
+            printf("  Too low!  The number is higher.\n\n");
+        } else if (guess > secret_number) {
+            //Player guessed too large
+            printf("  Too high! The number is lower.\n\n");
+        }
+        /* If neither, guess == secret_number and the loop will end */
 
-    } while (guess != secret_number);  // stop when guess is correct
+    } while (guess != secret_number);
 
-    //Show success when the loop ends
-    printf("\n");
-    printf("You got it! Great guess!\n");
+    //Success
+    printf("Correct! You found the number!\n");
 
     return 0;
 }
