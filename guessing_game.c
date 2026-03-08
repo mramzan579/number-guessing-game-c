@@ -1,22 +1,26 @@
 /*
  * guessing_game.c
- * Number Guessing Game with Input Validation
- * Validate all user input. Reject letters, symbols,
- * and numbers outside the valid range.
+ *
+ * A console-based number guessing game written in C.
+ * The computer picks a random number between 1 and 100.
+ * The player guesses until they find it, with hints along the way.
+ *
+ * Compile : gcc guessing_game.c -o guessing_game
+ * Run     : ./guessing_game
  */
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
 
+//Game constants
 #define MIN_NUMBER 1
 #define MAX_NUMBER 100
 
-/* 
+/* -------------------------------------------------------
    clear_input_buffer()
-   After a bad scanf, leftover characters stay in the input
-   stream and cause an infinite loop. This function removes
-   them so the player can try again cleanly. */
+   Drains leftover characters from stdin after bad input.
+------------------------------------------------------- */
 void clear_input_buffer(void)
 {
     int c;
@@ -24,28 +28,26 @@ void clear_input_buffer(void)
         ;
 }
 
-/*
+/* -------------------------------------------------------
    get_valid_guess()
-   Keeps asking until the player enters a proper integer
-   that falls within MIN_NUMBER to MAX_NUMBER.
-   Returns the valid guess.*/
+   Loops until the player enters a valid integer
+   between MIN_NUMBER and MAX_NUMBER. Returns the value.
+------------------------------------------------------- */
 int get_valid_guess(void)
 {
     int guess;
     int scan_result;
 
-    while (1) {  //loop forever until user enters a valid input
+    while (1) {
         printf("Enter your guess: ");
         scan_result = scanf("%d", &guess);
 
         if (scan_result != 1) {
-            /* Player typed something that is not a number */
             clear_input_buffer();
             printf("  Invalid input! Please type a whole number.\n\n");
-            continue;  /* go back to the top of the loop */
+            continue;
         }
 
-        /* Input was a number — now check the range */
         clear_input_buffer();
 
         if (guess < MIN_NUMBER || guess > MAX_NUMBER) {
@@ -54,37 +56,55 @@ int get_valid_guess(void)
             continue;
         }
 
-        // If user reaches here, the input is valid — return it 
         return guess;
     }
 }
 
 /* -------------------------------------------------------
-   main()
+   ask_play_again()
+   Asks if the player wants another round.
+   Returns 1 for yes, 0 for no.
 ------------------------------------------------------- */
-int main(void)
+int ask_play_again(void)
+{
+    char choice;
+
+    while (1) {
+        printf("\nWould you like to play again? (y/n): ");
+        scanf(" %c", &choice);  // space before %c skips whitespace 
+        clear_input_buffer();
+
+        if (choice == 'y' || choice == 'Y') {
+            return 1;  /* yes, play again */
+        } else if (choice == 'n' || choice == 'N') {
+            return 0;  /* no, quit */
+        } else {
+            printf("  Please enter y or n.\n");
+        }
+    }
+}
+
+/* -------------------------------------------------------
+   play_one_game()
+   Runs a single full round of the guessing game.
+   Returns the number of attempts the player used.
+------------------------------------------------------- */
+int play_one_game(void)
 {
     int secret_number;
     int guess;
     int attempts = 0;
 
-    // Seed and generate secret number
-    srand((unsigned int)time(NULL));
+    //Generate a new secret number for this round 
     secret_number = (rand() % MAX_NUMBER) + MIN_NUMBER;
 
-    // Welcome banner
-    printf("========================================\n");
-    printf("       NUMBER GUESSING GAME             \n");
-    printf("========================================\n");
-    printf("\n");
-    printf("I have picked a secret number between %d and %d.\n",
+    printf("\nI have picked a secret number between %d and %d.\n",
            MIN_NUMBER, MAX_NUMBER);
-    printf("Can you guess it?\n");
-    printf("\n");
+    printf("Can you guess it?\n\n");
 
-    /* Guessing loop — now uses validated input */
+    //Guessing loop
     do {
-        guess = get_valid_guess();  /* safe, validated input */
+        guess = get_valid_guess();
         attempts++;
 
         if (guess < secret_number) {
@@ -95,7 +115,7 @@ int main(void)
 
     } while (guess != secret_number);
 
-    /* Success message */
+    /* Win message */
     printf("\n========================================\n");
     printf("  Correct! The number was %d.\n", secret_number);
     printf("========================================\n");
@@ -109,6 +129,51 @@ int main(void)
     } else {
         printf("You made it! Total guesses: %d. Keep practicing!\n", attempts);
     }
+
+    return attempts;
+}
+
+/* -------------------------------------------------------
+   main()
+   Seeds the PRNG once, then runs rounds until the
+   player decides to quit. Tracks best score overall.
+------------------------------------------------------- */
+int main(void)
+{
+    int round      = 1;  /* current round number        */
+    int last_score = 0;  /* attempts used in last round */
+    int best_score = 0;  /* fewest attempts across all rounds */
+
+    /* Seed once at the start — not inside the game loop */
+    srand((unsigned int)time(NULL));
+
+    /* Welcome banner */
+    printf("========================================\n");
+    printf("       NUMBER GUESSING GAME             \n");
+    printf("========================================\n");
+
+    /* Main play-again loop */
+    do {
+        printf("\n--- Round %d ---\n", round);
+
+        last_score = play_one_game();
+
+        /* Update best score if this round was better */
+        if (best_score == 0 || last_score < best_score) {
+            best_score = last_score;
+        }
+
+        round++;
+
+    } while (ask_play_again());
+
+    /* Final summary */
+    printf("\n========================================\n");
+    printf("  Thanks for playing!\n");
+    printf("  Rounds played : %d\n", round - 1);
+    printf("  Best score    : %d guess(es)\n", best_score);
+    printf("========================================\n");
+    printf("Goodbye! Come back and beat your record.\n\n");
 
     return 0;
 }
