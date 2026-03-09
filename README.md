@@ -16,7 +16,7 @@ A console-based game built in C where the computer picks a random number between
 
 I wanted a project small enough to actually finish but deep enough to learn from. This game covers the exact fundamentals I was studying — random number generation, loops, input handling, and clean function design — so it made sense to build it properly instead of just reading about it.
 
-I also challenged myself to commit every single day for 8 days, adding one feature at a time, the way real developers actually work.
+I also challenged myself to commit every single day for 3 days, adding one feature at a time, the way real developers actually work.
 
 ---
 
